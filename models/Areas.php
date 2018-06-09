@@ -16,7 +16,7 @@ class Areas extends Model {
   
   public function __construct() {
     $this->areas = require __DIR__.'/data/areas.php';
-    $this->areaNames = $this->getAreaNames();
+    $this->areaNames = array_keys($this->areas);
   }
 
   public function getAreasSortedByName() {
@@ -25,18 +25,11 @@ class Areas extends Model {
   }
 
   public function getAreasSortedByDistance($areaId) {
-    $areaCoordinates = $this->findAreaCoordinatesByName($this->areaNames[$areaId]);
+    $name = $this->areaNames[$areaId];
+    $areaCoordinates = $this->areas[$name];
     $this->findAllDistance($areaCoordinates);
     $this->sortByDistance();
     return $this->areas;
-  }
-
-  private function findAreaCoordinatesByName($name) {
-    foreach ($this->areas as $key => $value) {
-      if ($key == $name) {
-        return $value;
-      }
-    }
   }
 
   private function findAllDistance($areaCoordinates) {
@@ -52,14 +45,6 @@ class Areas extends Model {
     uasort($this->areas, function($a, $b) {
       return $a['dist'] <=> $b['dist'];
     });
-  }
-
-  private function getAreaNames() {
-    $areaNames = array();
-    foreach ($this->areas as $key => $value) {
-      array_push($areaNames, $key);
-    }
-    return $areaNames;
   }
 
   private function calculateDistance($latitude1, $longitude1, $latitude2, $longitude2) {
